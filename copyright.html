@@ -1,0 +1,66 @@
+
+{{/* Copyright start hook*/}}
+{{ $permission := .Param "permission" }}
+<!-- The "pemrission" parameter, in this case, is about which license the work is under.  -->
+
+{{ $prelude := "To view a copy of this license," }}
+{{ .Page.Store.Set "link" "https://creativecommons.org.licenses/" }}
+{{ .Page.Store.Set "imagelink" "http://mirrors.creativecommons.org/presskit/buttons/88x31/png/" }}
+{{ $version := "/4.0/" }}
+{{ $EUcurrency:= false }}
+{{ $name:= "CaerbannogMochi" }}
+{{ $personalLink:= "https://github.com/Caerbannogmochi" }}
+
+<hr>
+
+{{- if eq $permission "BY-SA-NC" "BY-NC-SA" }}
+    {{- .Page.Store.Set "license" "by-nc-sa" }}
+
+{{- else if eq $permission "BY-SA" }}
+    {{- .Page.Store.Set "license" "by-sa" }}
+
+{{- else if eq $permission "BY" }}
+    {{- .Page.Store.Set "license" "by" }}
+
+{{- else if eq $permission "BY-ND"}}
+    {{- .Page.Store.Set "license" "by-nd" }}
+
+{{- else if eq $permission "BY-NC" }}
+    {{- .Page.Store.Set "license" "by-nc" }}
+
+{{- else if eq $permission "BY-NC-ND" "BY-ND-NC" }}
+    {{- .Page.Store.Set "license" "by-nc-nd" }}
+{{- end }}
+
+<!-- Now I'm going to glue this all together. Or at least try to. -->
+
+{{- $license := .Page.Store.Get "license" }}
+{{- .Page.Store.Add "link" $license }}
+{{- .Page.Store.Add "link" $version }}
+{{- .Page.Store.Add "imagelink" $license }}
+{{- if $EUcurrency }}
+    {{- if eq $license "by-nc" "by-nc-nd" "by-nc-sa" }}
+       {{- .Page.Store.Add "imagelink" ".eu" }}
+    {{- end }}
+{{- end }}
+{{- .Page.Store.Add "imagelink" ".png" }}
+
+{{- $imagelink := .Page.Store.Get "imagelink" }}
+{{- $imagelink := string $imagelink }}
+{{- $image := resources.GetRemote $imagelink }}
+
+<!-- Now for the CC0 edge case: -->
+{{- if eq $permission "0" "CC0" "none" "cco" }}
+{{- $image := resources.GetRemote "http://mirrors.creativecommons.org/presskit/buttons/88x31/png/cc-zero.png" }}
+{{- .Page.Store.Set "link" "https://creativecommons.org/publicdomain/zero/1.0/" }}
+{{- $version := "1.0" }}
+{{- $license := "cc0" }}
+{{- end }}
+
+{{- $permission := upper $license }}
+ <!-- <p>Debug: imagelink = "{{ $imagelink }}". The license is "{{ .Page.Store.Get "license" }}".</p> -->
+
+<p class="center"> {{- .Title }} © {{- .Date.Year }} by <a href="{{- $personalLink}}">{{ $name }}</a> is licensed under CC&nbsp{{- $permission }}&nbsp{{- trim $version "/" }}. </p>
+<img src="{{ $image.RelPermalink}}" width="{{ $image.Width }}" height="{{ $image.Height}}" alt="A large badge, meant to visually express the requirements of the license.">
+<p class="center"> {{- $prelude }} <a href="{{- .Page.Store.Get "link" }}">click here</a>. </p>
+{{/* Copyright end hook */}}
